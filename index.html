@@ -62,9 +62,13 @@ class CatApp extends React.Component {
 
   handleSubmit(e) {
     e.preventDefault();
+
+    // Set id with current timestamp
     var newItem = {
       id: Date.now()
     };
+
+    // Add newItem to state items, this will re-render the component
     this.setState((prevState) => ({
       items: prevState.items.concat(newItem)
     }));
@@ -72,7 +76,9 @@ class CatApp extends React.Component {
 }
 
 /**
- *  Show all cat pictures by looping through its prop
+ *  Show all cat pictures by looping through its prop.
+ *
+ *  Here we just render the list of items provided by top component through props.
  *
  */
 class CatList extends React.Component {
