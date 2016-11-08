@@ -1,0 +1,149 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="utf-8">
+    <title>React Tutorial with cats</title>
+    <!-- Not present in the tutorial. Just for basic styling. -->
+    <link rel="stylesheet" href="css/bootstrap.min.css" />
+    <script src="scripts/react.js"></script>
+    <script src="scripts/react-dom.js"></script>
+    <script src="scripts/jquery.min.js"></script>
+    <script src="scripts/babel.min.js"></script>
+  </head>
+  <body>
+    <div id="content"></div>
+    <script type="text/babel">
+
+/**
+ *  Top component
+ *
+ */
+class CatApp extends React.Component {
+  constructor(props) {
+    super(props);
+    this.handleSubmit = this.handleSubmit.bind(this);
+    this.state = {items: [], text: ''};
+  }
+
+  handleRemove(id) {
+    var items = this.state.items;
+
+    // Go through items and delete when found
+    for (var i in items) {
+      if (items[i]['id'] == id) {
+        // Delete from array
+        delete items[i];
+
+        // Set state to a new array, this will trigger a new render
+        this.setState({
+          items: items
+        });
+
+        break;
+      }
+    }
+  }
+
+  render() {
+    return (
+      <div className="container">
+        <h1>Cat + React = Recat</h1>
+        <CatList items={this.state.items} handleRemove={this.handleRemove.bind(this)} />
+        <div className="row">
+          <div className="cold-md-12 text-center">
+            <form onSubmit={this.handleSubmit}>
+              <button className="btn btn-primary">Add cat</button>
+            </form>
+          </div>
+        </div>
+      </div>
+    );
+  }
+
+  handleSubmit(e) {
+    e.preventDefault();
+    var newItem = {
+      id: Date.now()
+    };
+    this.setState((prevState) => ({
+      items: prevState.items.concat(newItem)
+    }));
+  }
+}
+
+/**
+ *  Show all cat pictures by looping through its prop
+ *
+ */
+class CatList extends React.Component {
+  render() {
+    return (
+      <div className='row'>
+        {this.props.items.map(item => (
+          <CatPicture key={item.id} handleRemove={this.props.handleRemove.bind(null, item.id)}/>
+        ))}
+      </div>
+    );
+  }
+}
+
+/**
+ *  Show a cat picture and its delete button
+ *
+ */
+class CatPicture extends React.Component {
+  constructor(props) {
+    super(props);
+    this.state = {
+      pictureUrl: '',
+    }
+  }
+
+  componentDidMount() {
+    // Get URL picture from api
+    var p = $.ajax({
+      url: 'http://thecatapi.com/api/images/get?format=xml&size=small'
+    });
+
+    var component = this;
+
+    // Once AJAX request completed, we get URL of the picture
+    p.always = function() {
+      var url = this.responseText.match(/\<url\>(.*?)\<\/url\>/i)[1];
+
+      // Store URL in state, this will re render the component
+      component.setState({
+        pictureUrl: url
+      });
+    }
+  }
+
+  render() {
+    if (this.state.pictureUrl !== '') {
+      return (
+        <div className="col-md-3 text-center">
+          <p>
+            <img src={this.state.pictureUrl}/>
+          </p>
+          <button onClick={this.props.handleRemove} className="btn btn-default">Remove</button>
+        </div>
+      )
+    }
+
+    // If no URL, show "loading"
+    return (
+
+        <div className="col-md-3 text-center">
+          <p className="text-center">
+            Loading...
+          </p>
+          <button onClick={this.props.handleRemove} className="btn btn-default">Remove</button>
+        </div>
+    )
+  }
+}
+
+ReactDOM.render(<CatApp />, document.getElementById('content'));
+    </script>
+  </body>
+</html>
