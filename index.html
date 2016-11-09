@@ -3,7 +3,6 @@
   <head>
     <meta charset="utf-8">
     <title>React Tutorial with cats</title>
-    <!-- Not present in the tutorial. Just for basic styling. -->
     <link rel="stylesheet" href="css/bootstrap.min.css" />
     <script src="scripts/react.js"></script>
     <script src="scripts/react-dom.js"></script>
@@ -21,10 +20,17 @@
 class CatApp extends React.Component {
   constructor(props) {
     super(props);
-    this.handleSubmit = this.handleSubmit.bind(this);
+    this.handleSubmit = this.handleSubmit.bind(this); // Add context
+    this.handleRemove = this.handleRemove.bind(this);
     this.state = {items: [], text: ''};
   }
 
+  /**
+   *  Handle picture removal.
+   *
+   *  Passed to CatList component through props,
+   *  so called in CatList but executed in this component.
+   */
   handleRemove(id) {
     var items = this.state.items;
 
@@ -48,7 +54,7 @@ class CatApp extends React.Component {
     return (
       <div className="container">
         <h1>Cat + React = Recat</h1>
-        <CatList items={this.state.items} handleRemove={this.handleRemove.bind(this)} />
+        <CatList items={this.state.items} handleRemove={this.handleRemove} />
         <div className="row">
           <div className="cold-md-12 text-center">
             <form onSubmit={this.handleSubmit}>
@@ -60,6 +66,15 @@ class CatApp extends React.Component {
     );
   }
 
+  /**
+   *  Handle adding a new picture.
+   *
+   *  This will:
+   *    - Add a new record in the list of items
+   *    - Call render() on this component because we update the state
+   *    - Call render() on CatList component because we render its owner
+   *    - React with JSX is smart to know that only one (new) component needs to be rendered in the DOM
+   */
   handleSubmit(e) {
     e.preventDefault();
 
